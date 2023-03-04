@@ -70,10 +70,10 @@ struct base : rect
 
 struct world
 {
-    world(base base, ball ball, cv::Size size)
+    world(base base, ball ball, const cv::Size size)
         : base(std::move(base)),
           ball(std::move(ball)),
-          size(std::move(size))
+          size(size)
     {
     }
 
@@ -108,7 +108,14 @@ void draw_bricks(cv::Mat3b& window, const std::vector<brick>& bricks)
 }
 
 
-bool check_intersection(const ball& ball, const rect& rect)
+struct intersection
+{
+    cv::Point2d closest_point;
+    double distance;
+};
+
+
+std::optional<intersection> check_intersection(const ball& ball, const rect& rect)
 {
     double intersection_x = ball.x;
     double intersection_y = ball.y;
@@ -118,14 +125,47 @@ bool check_intersection(const ball& ball, const rect& rect)
     else if (ball.y > rect.bottom()) intersection_y = rect.bottom();
 
     const double sqr_distance = pow(intersection_x - ball.x, 2) + pow(intersection_y - ball.y, 2);
-    return sqr_distance <= ball.radius;
+    if (sqr_distance <= ball.radius * ball.radius)
+        return intersection{cv::Point2d{intersection_x, intersection_y}, pow(sqr_distance, 0.5)};
+    return std::nullopt;
 }
 
 
-void update_world(world& world, const double dt = 1.)
+void reflect_ball(ball& ball, const cv::Point2d& contact)
 {
-    world.ball.x += world.ball.dx * dt * world.ball.v;
-    world.ball.y += world.ball.dy * dt * world.ball.v;
+    const double distance = pow(pow(contact.x - ball.x, 2) + pow(contact.y - ball.y, 2), 0.5);
+
+    if (distance == 0.)
+    {
+        ball.dx *= -1;
+        ball.dy *= -1;
+    }
+    else
+    {
+        const cv::Matx21d n{
+            (ball.x - contact.x) / distance,
+            (ball.y - contact.y) / distance
+        };
+        const cv::Matx21d in{ball.dx, ball.dy};
+        const auto out = in - 2 * in.dot(n) * n;
+        if (abs(out(1)) < 0.5)  // ensure vertical angle is always at least 30 degrees
+        {
+            ball.dx = copysign(pow(0.75, 0.5), out(0));
+            ball.dy = copysign(0.5, out(1));
+        }
+        else
+        {
+            ball.dx = out(0);
+            ball.dy = out(1);
+        }
+    }   
+}
+
+
+void update_world(world& world)
+{
+    world.ball.x += world.ball.dx * world.ball.v;
+    world.ball.y += world.ball.dy * world.ball.v;
 
     if (world.ball.x <= 0 || world.ball.x >= world.size.width) 
         world.ball.dx *= -1;
@@ -133,18 +173,24 @@ void update_world(world& world, const double dt = 1.)
         world.ball.dy *= -1;
 
     if (check_intersection(world.ball, world.base))
-        world.ball.dy *= -1;
+        world.ball.dy = -abs(world.ball.dy);  // base always reflects upwards; this prevents issues such as ball entering base
 
-    const auto it = std::ranges::find_if(
-        world.bricks,
-        [&](const brick& b) { return check_intersection(world.ball, b);}
-        );
-    
-    if (it != world.bricks.end())
+    std::optional<intersection> closest_intersection;
+
+    for(auto it = world.bricks.begin(); it != world.bricks.end();)
     {
-        world.bricks.erase(it);
-        world.ball.dy *= -1;
+        if (const auto intersection = check_intersection(world.ball, *it))
+        {
+            if (!closest_intersection.has_value() || intersection->distance < closest_intersection->distance)
+                closest_intersection = intersection;
+            it = world.bricks.erase(it);
+        }
+        else
+            ++it;
     }
+
+    if (closest_intersection)
+        reflect_ball(world.ball, closest_intersection->closest_point);
 }
 
 
