@@ -25,6 +25,11 @@ struct rect : object
     {
     }
 
+    [[nodiscard]] double left() const { return x - width / 2.; }
+    [[nodiscard]] double right() const { return x + width / 2.; }
+    [[nodiscard]] double top() const { return y - height / 2.; }
+    [[nodiscard]] double bottom() const { return y + height / 2.; }
+
     int width;
     int height;
 };
@@ -105,15 +110,15 @@ void draw_bricks(cv::Mat3b& window, const std::vector<brick>& bricks)
 
 bool check_intersection(const ball& ball, const rect& rect)
 {
-    if (ball.x + ball.radius < rect.x - rect.width / 2.)
-        return false;
-    if (ball.x - ball.radius > rect.x + rect.width / 2.)
-        return false;
-    if (ball.y + ball.radius < rect.y - rect.height / 2.)
-        return false;
-    if (ball.y - ball.radius > rect.y + rect.height / 2.)
-        return false;
-    return true;
+    double intersection_x = ball.x;
+    double intersection_y = ball.y;
+    if (ball.x < rect.left()) intersection_x = rect.left();
+    else if (ball.x > rect.right()) intersection_x = rect.right();
+    if (ball.y < rect.top()) intersection_y = rect.top();
+    else if (ball.y > rect.bottom()) intersection_y = rect.bottom();
+
+    const double sqr_distance = pow(intersection_x - ball.x, 2) + pow(intersection_y - ball.y, 2);
+    return sqr_distance <= ball.radius;
 }
 
 
