@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="arkanoid-cv.cpp" />
     <ClCompile Include="graphics.cpp" />
+    <ClCompile Include="world_builder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.md" />
@@ -167,6 +168,7 @@
   <ItemGroup>
     <ClInclude Include="graphics.h" />
     <ClInclude Include="objects.h" />
+    <ClInclude Include="world_builder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

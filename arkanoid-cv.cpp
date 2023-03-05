@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include "objects.h"
 #include "graphics.h"
+#include "world_builder.h"
 
 using namespace arkanoid_cv;
 
@@ -101,19 +102,11 @@ void mouse_callback(int event, int x, int y, int flags, void* userdata)
 
 int main(int, char* [])
 {
-    world world{
-        base{300, 380, 50, 10, {0, 255, 0}},
-        ball{300, 368, 6, {255, 0, 0}},
-        cv::Size{600, 400}
-    };
+    const world_builder wb;
+    const graphics graphics;
+    world world = wb.build({600, 400}, 5u);
     
     cv::Mat3b window{world.size};
-
-    for (int y = 60; y < 150; y += 20)
-    for (int x = 24; x < window.cols - 20; x += 44)
-    {
-        world.bricks.emplace_back(x, y, 40, 16, cv::Vec3b{0, 0, 200});
-    }
 
     cv::namedWindow("arkanoid-cv", cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
     cv::setMouseCallback("arkanoid-cv", mouse_callback, &world);
@@ -123,7 +116,7 @@ int main(int, char* [])
         update_world(world);
 
         // draw objects
-        draw_world(window, world, {200, 200, 200});
+        graphics.draw_world(window, world);
         
         imshow("arkanoid-cv", window);
 

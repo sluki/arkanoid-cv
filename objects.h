@@ -5,22 +5,20 @@ namespace arkanoid_cv
 {
     struct object
     {
-        object(const double x, const double y, const cv::Vec3b& color)
+        object(const double x, const double y)
             : x(x),
-              y(y),
-              color(color)
+              y(y)
         {
         }
 
         double x;
         double y;
-        cv::Vec3b color;
     };
 
     struct rect : object
     {
-        rect(const double x, const double y, const int width, const int height, const cv::Vec3b& color)
-            : object(x, y, color),
+        rect(const double x, const double y, const int width, const int height)
+            : object(x, y),
               width(width),
               height(height)
         {
@@ -37,8 +35,8 @@ namespace arkanoid_cv
 
     struct ball : object
     {
-        ball(const double x, const double y, const int radius, const cv::Vec3b& color)
-            : object(x, y, color),
+        ball(const double x, const double y, const int radius)
+            : object(x, y),
               radius(radius)
         {
         }
@@ -52,8 +50,8 @@ namespace arkanoid_cv
 
     struct brick : rect
     {
-        brick(const int x, const int y, const int width, const int height, const cv::Vec3b& color)
-            : rect(x, y, width, height, color)
+        brick(const double x, const double y, const int width, const int height)
+            : rect(x, y, width, height)
         {
         }
     };
@@ -61,8 +59,8 @@ namespace arkanoid_cv
 
     struct base : rect
     {
-        base(const int x, const int y, const int width, const int height, const cv::Vec3b& color)
-            : rect(x, y, width, height, color)
+        base(const double x, const double y, const int width, const int height)
+            : rect(x, y, width, height)
         {
         }
     };
@@ -70,9 +68,9 @@ namespace arkanoid_cv
     
     struct world
     {
-        world(base base, ball ball, const cv::Size size)
-            : base(std::move(base)),
-              ball(std::move(ball)),
+        world(const base base, const ball ball, const cv::Size size)
+            : base(base),
+              ball(ball),
               size(size)
         {
         }
