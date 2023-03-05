@@ -1,111 +1,8 @@
 #include <opencv2/opencv.hpp>
+#include "objects.h"
+#include "graphics.h"
 
-
-struct object
-{
-    object(const double x, const double y, const cv::Vec3b& color)
-        : x(x),
-          y(y),
-          color(color)
-    {
-    }
-
-    double x;
-    double y;
-    cv::Vec3b color;
-};
-
-
-struct rect : object
-{
-    rect(const double x, const double y, const int width, const int height, const cv::Vec3b& color)
-        : object(x, y, color),
-          width(width),
-          height(height)
-    {
-    }
-
-    [[nodiscard]] double left() const { return x - width / 2.; }
-    [[nodiscard]] double right() const { return x + width / 2.; }
-    [[nodiscard]] double top() const { return y - height / 2.; }
-    [[nodiscard]] double bottom() const { return y + height / 2.; }
-
-    int width;
-    int height;
-};
-
-
-struct ball : object
-{
-    ball(const double x, const double y, const int radius, const cv::Vec3b& color)
-        : object(x, y, color),
-          radius(radius)
-    {
-    }
-
-    int radius;
-    double v = 0.;
-    double dx = 0.6;
-    double dy = -0.8;
-};
-
-
-struct brick : rect
-{
-    brick(const int x, const int y, const int width, const int height, const cv::Vec3b& color)
-        : rect(x, y, width, height, color)
-    {
-    }
-};
-
-
-struct base : rect
-{
-    base(const int x, const int y, const int width, const int height, const cv::Vec3b& color)
-        : rect(x, y, width, height, color)
-    {
-    }
-};
-
-
-struct world
-{
-    world(base base, ball ball, const cv::Size size)
-        : base(std::move(base)),
-          ball(std::move(ball)),
-          size(size)
-    {
-    }
-
-    std::vector<brick> bricks;
-    base base;
-    ball ball;
-    cv::Size size;
-};
-
-
-void draw_rectangle(cv::Mat3b& window, const rect& rect)
-{
-    rectangle(
-        window,
-        cv::Point2d{rect.x - rect.width / 2., rect.y - rect.height / 2.},
-        cv::Point2d{rect.x + rect.width / 2., rect.y + rect.height / 2.},
-        rect.color,
-        -1);
-}
-
-
-void draw_circle(cv::Mat3b& window, const ball& circle)
-{
-    cv::circle(window, cv::Point2d{circle.x, circle.y}, circle.radius, circle.color, -1, cv::LINE_AA);
-}
-
-
-void draw_bricks(cv::Mat3b& window, const std::vector<brick>& bricks)
-{
-    for (auto& brick : bricks)
-        draw_rectangle(window, brick);
-}
+using namespace arkanoid_cv;
 
 
 struct intersection
@@ -226,10 +123,7 @@ int main(int, char* [])
         update_world(world);
 
         // draw objects
-        window.setTo(cv::Vec3b{200, 200, 200});
-        draw_bricks(window, world.bricks);
-        draw_rectangle(window, world.base);
-        draw_circle(window, world.ball);
+        draw_world(window, world, {200, 200, 200});
         
         imshow("arkanoid-cv", window);
 

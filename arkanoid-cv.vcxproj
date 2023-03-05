@@ -159,9 +159,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="arkanoid-cv.cpp" />
+    <ClCompile Include="graphics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="graphics.h" />
+    <ClInclude Include="objects.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
