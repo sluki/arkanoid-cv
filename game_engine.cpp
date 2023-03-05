@@ -35,7 +35,11 @@ void arkanoid_cv::game_engine::update_world(world& world)
         {
             if (!closest_intersection.has_value() || intersection->distance < closest_intersection->distance)
                 closest_intersection = intersection;
-            it = world.bricks.erase(it);
+            it->lives--;
+            if (it->lives == 0)
+                it = world.bricks.erase(it);
+            else
+                ++it;
         }
         else
             ++it;

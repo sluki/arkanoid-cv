@@ -50,10 +50,15 @@ namespace arkanoid_cv
 
     struct brick : rect
     {
-        brick(const double x, const double y, const int width, const int height)
-            : rect(x, y, width, height)
+        brick(const double x, const double y, const int width, const int height, const int lives)
+        : rect(x, y, width, height),
+          initial_lives(lives),
+          lives(lives)
         {
         }
+        
+        int initial_lives;
+        int lives;
     };
 
 
