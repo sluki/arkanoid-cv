@@ -17,6 +17,8 @@ namespace arkanoid_cv::impl
 
 void arkanoid_cv::game_engine::update_world(world& world)
 {
+    const double initial_ball_x = world.ball.x;
+    const double initial_ball_y = world.ball.y;
     world.ball.x += world.ball.dx * world.ball.v;
     world.ball.y += world.ball.dy * world.ball.v;
 
@@ -25,10 +27,7 @@ void arkanoid_cv::game_engine::update_world(world& world)
     if (world.ball.y <= 0 || world.ball.y >= world.size.height)
         world.ball.dy *= -1;
 
-    if (impl::check_intersection(world.ball, world.base))
-        world.ball.dy = -abs(world.ball.dy);  // base always reflects upwards; this prevents issues such as ball entering base
-
-    std::optional<impl::intersection> closest_intersection;
+    auto closest_intersection = impl::check_intersection(world.ball, world.base);
 
     for(auto it = world.bricks.begin(); it != world.bricks.end();)
     {
@@ -43,7 +42,11 @@ void arkanoid_cv::game_engine::update_world(world& world)
     }
 
     if (closest_intersection)
+    {
         impl::reflect_ball(world.ball, closest_intersection->closest_point);
+        world.ball.x = initial_ball_x;
+        world.ball.y = initial_ball_y;
+    }
 }
 
 std::optional<arkanoid_cv::impl::intersection> arkanoid_cv::impl::check_intersection(const ball& ball, const rect& rect)
