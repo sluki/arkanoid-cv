@@ -7,26 +7,36 @@ namespace arkanoid_cv::impl
     void draw_circle(cv::Mat3b& window, const ball& circle, const cv::Vec3b& color);
 
     void draw_bricks(cv::Mat3b& window, const std::vector<brick>& bricks, const cv::Vec3b& full_color, const cv::Vec3b& dying_color);
+
+    enum text_origin { top_left, top_right, top_center };
+    void draw_text(const cv::Mat3b& screen, const std::string& text, int x, int y, text_origin origin);
 }
 
-const cv::Mat3b& arkanoid_cv::graphics::draw_screen(const game_engine& game, const world& world)
+const cv::Mat3b& arkanoid_cv::graphics::draw_screen(const game& game)
 {
-    std::stringstream lives_ss;
-    lives_ss << "lives " << game.get_lives();
-    const auto text_size = getTextSize(lives_ss.str(), cv::FONT_HERSHEY_SIMPLEX, font_scale_, 1, nullptr);
+    const auto& world = game.get_world();
     
     if (screen_.empty())
-        screen_.create(world.size.height + text_size.height + 4, world.size.width);
+        screen_.create(world.size.height + status_height_, world.size.width);
     
     screen_.setTo(background_color_);
 
-    auto game_window = cv::Mat3b{screen_, cv::Range(text_size.height + 4, screen_.rows), cv::Range(0, screen_.cols)};
+    auto game_window = cv::Mat3b{screen_, cv::Range(status_height_, screen_.rows), cv::Range(0, screen_.cols)};
     draw_world(game_window, world);
 
-    putText(screen_, lives_ss.str(), {screen_.cols - text_size.width - 2, text_size.height + 2}, cv::FONT_HERSHEY_SIMPLEX, font_scale_, 0, 1);
+    std::stringstream lives_ss;
+    lives_ss << "lives " << game.get_lives();
+    draw_text(screen_, lives_ss.str(), screen_.cols - 2, 2, impl::text_origin::top_right);
+    
     std::stringstream score_ss;
     score_ss << "score " << game.get_score();
-    putText(screen_, score_ss.str(), {2, text_size.height + 2}, cv::FONT_HERSHEY_SIMPLEX, font_scale_, 0, 1);
+    draw_text(screen_, score_ss.str(), 2, 2, impl::text_origin::top_left);
+
+    if (game.has_ended())
+    {
+        const std::string message = game.has_lost() ? "GAME LOST" : "GAME WON";
+        draw_text(screen_, message, screen_.cols / 2, screen_.rows / 2, impl::text_origin::top_center);
+    }
     return screen_;
 }
 
@@ -60,4 +70,26 @@ void arkanoid_cv::impl::draw_bricks(cv::Mat3b& window, const std::vector<brick>&
         const auto color = a * full_color + (1. - a) * dying_color;
         draw_rectangle(window, brick, color);
     }
+}
+
+void arkanoid_cv::impl::draw_text(const cv::Mat3b& screen, const std::string& text, int x, int y, const text_origin origin)
+{
+    constexpr auto face = cv::FONT_HERSHEY_SIMPLEX;
+    constexpr double scale = 0.5;
+    constexpr int thickness = 1;
+    const auto size = getTextSize(text, face, scale, thickness, nullptr);
+
+    y += size.height;
+    switch (origin)
+    {
+        case top_left: break;
+        case top_right:
+            x -= size.width;
+            break;
+        case top_center:
+            x -= size.width / 2;
+            break;
+    }
+
+    putText(screen, text, {x, y}, face, scale, 0, thickness, cv::LINE_AA);
 }

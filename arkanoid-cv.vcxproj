@@ -159,7 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="arkanoid-cv.cpp" />
-    <ClCompile Include="game_engine.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="world_builder.cpp" />
   </ItemGroup>
@@ -167,7 +167,7 @@
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game_engine.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="objects.h" />
     <ClInclude Include="world_builder.h" />
