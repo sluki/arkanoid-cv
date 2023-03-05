@@ -97,6 +97,9 @@ void mouse_callback(int event, int x, int y, int flags, void* userdata)
     world& world = *static_cast<::world*>(userdata);
 
     world.base.x = x;
+
+    if (world.ball.v < std::numeric_limits<double>::epsilon())
+        world.ball.x = x;
 }
 
 
