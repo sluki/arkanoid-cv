@@ -41,10 +41,16 @@ namespace arkanoid_cv
         {
         }
 
+        void update()
+        {
+            x += direction_x * speed;
+            y += direction_y * speed;
+        }
+
         int radius;
-        double v = 0.;
-        double dx = 0.6;
-        double dy = -0.8;
+        double speed = 0.;
+        double direction_x = 0.6;
+        double direction_y = -0.8;
     };
 
 

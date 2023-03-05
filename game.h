@@ -24,6 +24,8 @@ namespace arkanoid_cv
     private:
         void reset();
         
+        void handle_ball_collisions();
+        
         world world_;
         unsigned lives_ = 3u;
         unsigned score_ = 0u;
