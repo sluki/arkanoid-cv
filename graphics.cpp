@@ -36,7 +36,7 @@ void arkanoid_cv::impl::draw_bricks(cv::Mat3b& window, const std::vector<brick>&
 {
     for (auto& brick : bricks)
     {
-        const double a = 1. * brick.lives / brick.initial_lives;
+        const double a = (brick.lives - .99) / (brick.initial_lives - .99);
         const auto color = a * full_color + (1. - a) * dying_color;
         draw_rectangle(window, brick, color);
     }
