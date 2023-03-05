@@ -9,8 +9,8 @@ namespace arkanoid_cv
         [[nodiscard]] world build(const cv::Size& size, unsigned brick_rows) const;
 
     private:
-        int brick_width_ = 40;
-        int brick_height_ = 16;
+        int brick_width_ = 50;
+        int brick_height_ = 20;
         int brick_padding_ = 4;
 
         int base_width_ = 50;
@@ -18,7 +18,8 @@ namespace arkanoid_cv
 
         int ball_radius_ = 6;
 
-        int padding_ = 10;
-        int padding_top_ = 60;
+        int padding_sides_ = 30;
+        int padding_top_ = 50;
+        int padding_bottom_ = 10;
     };
 }
