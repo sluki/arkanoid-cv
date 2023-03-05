@@ -22,9 +22,9 @@ void arkanoid_cv::game_engine::update_world(world& world)
     world.ball.x += world.ball.dx * world.ball.v;
     world.ball.y += world.ball.dy * world.ball.v;
 
-    if (world.ball.x <= 0 || world.ball.x >= world.size.width) 
+    if (world.ball.x - world.ball.radius <= 0 || world.ball.x + world.ball.radius >= world.size.width) 
         world.ball.dx *= -1;
-    if (world.ball.y <= 0 || world.ball.y >= world.size.height)
+    if (world.ball.y - world.ball.radius <= 0 || world.ball.y + world.ball.radius >= world.size.height)
         world.ball.dy *= -1;
 
     auto closest_intersection = impl::check_intersection(world.ball, world.base);
@@ -37,7 +37,10 @@ void arkanoid_cv::game_engine::update_world(world& world)
                 closest_intersection = intersection;
             it->lives--;
             if (it->lives == 0)
+            {
+                score_ += it->initial_lives;
                 it = world.bricks.erase(it);
+            }
             else
                 ++it;
         }

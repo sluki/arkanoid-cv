@@ -21,21 +21,18 @@ void mouse_callback(int, const int x, int, int, void* userdata)
 
 int main(int, char* [])
 {
-    const world_builder wb;
-    const graphics graphics;
+    graphics graphics;
     game_engine game_engine;
+    const world_builder wb;
     world world = wb.build({600, 400}, 5u);
-    
-    cv::Mat3b window{world.size};
 
     cv::namedWindow("arkanoid-cv", cv::WINDOW_GUI_NORMAL | cv::WINDOW_AUTOSIZE);
     cv::setMouseCallback("arkanoid-cv", mouse_callback, &world);
     while (true)
     {
         game_engine.update_world(world);
-        graphics.draw_world(window, world);
         
-        imshow("arkanoid-cv", window);
+        imshow("arkanoid-cv", graphics.draw_screen(game_engine, world));
 
         const int key = cv::waitKey(5);
 
